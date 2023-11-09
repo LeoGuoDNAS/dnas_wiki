@@ -1,3 +1,4 @@
+from typing import Optional
 import pinecone
 from llama_index.vector_stores import PineconeVectorStore
 from llama_index.embeddings.openai import OpenAIEmbedding
@@ -6,6 +7,9 @@ from llama_index.tools import BaseTool, FunctionTool, QueryEngineTool, ToolMetad
 from llama_index import VectorStoreIndex, SimpleDirectoryReader, ServiceContext, GPTVectorStoreIndex, download_loader
 from dotenv import load_dotenv
 import openai
+from langchain.tools import DuckDuckGoSearchRun, Tool, HumanInputRun
+from langchain.chains import LLMMathChain
+from langchain.llms import OpenAI
 
 # Load environment variables from .env file
 load_dotenv()
@@ -77,3 +81,36 @@ policy_qa_tool = QueryEngineTool(
     )
 )
 policy_qa_lc_tool = policy_qa_tool.to_langchain_tool()
+
+# DuckDuckGoSearch
+ddg_search = DuckDuckGoSearchRun()
+ddg_search_lc_tool = Tool(
+    name="Duck Duck Go Search",
+    func=ddg_search.run,
+    description="Useful for when you need to answer questions about the current events."
+)
+
+# Calculator
+math = LLMMathChain.from_llm(OpenAI())
+math_lc_tool = Tool(
+    name="Calculator",
+    func=math.run,
+    description="Useful for when you need to do math calculations."
+)
+
+# Human in the loop
+# human_in_the_loop = HumanInputRun()
+# human_input_lc_tool = Tool(
+#     name="Human in the loop",
+#     func=human_in_the_loop.run,
+#     description="Useful for when you need more information or clarification."
+# )
+
+# Default behavior
+def default_response(input_text: Optional[str]):
+    return "I cannot answer this question now. More information required."
+default_behavior_lc_tool = Tool(
+    name="Default response tool",
+    func=default_response,
+    description="Useful for when you cannot find an appropriate tool to use. Or you don't have enough information to formulate an answer."
+)

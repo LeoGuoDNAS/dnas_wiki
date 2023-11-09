@@ -5,7 +5,7 @@ from langchain.chat_models import ChatOpenAI
 import os
 import openai
 from dotenv import load_dotenv
-from tools import dnas_qa_lc_tool, sop_lc_tool, sampro_webhelp_lc_tool, policy_qa_lc_tool
+from tools import dnas_qa_lc_tool, sop_lc_tool, sampro_webhelp_lc_tool, policy_qa_lc_tool, ddg_search_lc_tool, math_lc_tool, default_behavior_lc_tool
 
 load_dotenv()
 openai.api_key = os.getenv('api_key')
@@ -20,7 +20,10 @@ agent = initialize_agent(
         dnas_qa_lc_tool,
         sop_lc_tool,
         sampro_webhelp_lc_tool,
-        policy_qa_lc_tool
+        policy_qa_lc_tool,
+        ddg_search_lc_tool,
+        math_lc_tool,
+        default_behavior_lc_tool
     ],
     llm=llm,
     agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
@@ -46,12 +49,12 @@ if "messages" not in st.session_state:
     ]
 
 for msg in st.session_state.messages:
-    st.chat_message(msg["role"], avatar="🤖").write(msg["content"])
+    st.chat_message(msg["role"]).write(msg["content"])
 
 if prompt := st.chat_input(placeholder="Start typing..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user", avatar="🤔").write(prompt)
-    with st.chat_message("assistant", avatar="🤖"):
+    st.chat_message("user").write(prompt)
+    with st.chat_message("assistant"):
         st.write("☀️🌑🤖 Thinking...")
         st_callback_handler = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
         response = agent.run(prompt, callbacks=[st_callback_handler])
