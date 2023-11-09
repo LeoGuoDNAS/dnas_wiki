@@ -14,6 +14,7 @@ from langchain.llms import OpenAI
 # Load environment variables from .env file
 load_dotenv()
 openai.api_key = os.getenv('api_key')
+os.environ['OPENAI_API_KEY'] = os.getenv('api_key')
 os.environ['PINECONE_API_KEY'] = os.getenv('pinecone_api_key')
 os.environ['PINECONE_ENVIRONMENT'] = os.getenv('pinecone_env')
 
