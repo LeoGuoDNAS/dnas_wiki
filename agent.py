@@ -30,8 +30,8 @@ agent = initialize_agent(
 
 # agent.run("What is the vacation policy? How many days do we get off? And what are they?")
 
-st.set_page_config(page_title="Day & Nite Chatbot", page_icon="🤖")
-st.title("☀️🌑🤖 Day & Nite Chatbot")
+st.set_page_config(page_title="Day & Nite Wiki", page_icon="🤖")
+st.title("☀️🌑🤖 Day & Nite Wiki")
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = [
