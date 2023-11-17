@@ -33,7 +33,7 @@ agent = initialize_agent(
         workorder_status_lc_tool
     ],
     llm=llm,
-    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, # CHAT_ZERO_SHOT_REACT_DESCRIPTION, #ZERO_SHOT_REACT_DESCRIPTION,
+    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, # CHAT_ZERO_SHOT_REACT_DESCRIPTION, #ZERO_SHOT_REACT_DESCRIPTION, CONVERSATION..
     verbose=True,
     handle_paring_errors=_handle_error
 )
@@ -41,8 +41,8 @@ agent = initialize_agent(
 st.set_page_config(page_title="Day & Nite Wiki", page_icon="🌗")
 st.title("🌗 Day & Nite Wiki")
 
-
-st.info("I can answer questions about 1. Day & Nite's company general information, 2. Standard of Procedure, 3. Day & Nite policeis, and 4. SamPro WebHelp.")
+st.info("I am an AI Chatbot capable of answering questions related to 1. Day & Nite's general information, 2. Standard of Procedure, 3. Day & Nite policies, 4. SamPro WebHelp, 5. workorder status, 6. math calculation and 7. search web for additional info.")
+st.info("Help me improve! Email lguo@wearetheone.com to suggestions and ideas.")
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = [
@@ -67,13 +67,17 @@ if prompt := st.chat_input(placeholder="Start typing..."):
         # HumanApprovalCallbackHandler()
         # st_callback_handler.on_tool_end()
         # response = agent.run(prompt, callbacks=[st_callback_handler])
+        # response = agent.run(prompt, chat_history=st.session_state.messages, callbacks=[st_callback_handler])
         try:
-            response = agent.run(prompt, callbacks=[st_callback_handler])
+            response = agent.run(input=prompt, chat_history=st.session_state.messages, callbacks=[st_callback_handler])
         except ValueError as e:
             response = str(e)
             if not response.startswith("Could not parse LLM output: `"):
-                raise e
-            response = response.removeprefix("Could not parse LLM output: `").removesuffix("`")
+                # raise e
+                response = f"{response.replace('Could not parse LLM output:', '')}"
+                response.replace("Could not parse LLM output:", "")
+            else:
+                response = response.removeprefix("Could not parse LLM output: `").removesuffix("`")
 
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.write(response)
