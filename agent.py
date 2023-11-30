@@ -33,35 +33,42 @@ agent = initialize_agent(
         workorder_status_lc_tool
     ],
     llm=llm,
-    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, # CHAT_ZERO_SHOT_REACT_DESCRIPTION, #ZERO_SHOT_REACT_DESCRIPTION, CONVERSATION..
+    agent=AgentType.OPENAI_FUNCTIONS,
+    # agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION, # CHAT_ZERO_SHOT_REACT_DESCRIPTION, #ZERO_SHOT_REACT_DESCRIPTION, CONVERSATION..
     verbose=True,
     handle_paring_errors=_handle_error
 )
 
 st.set_page_config(page_title="Day & Nite Wiki", page_icon="🌗")
-st.title("🌗 Day & Nite Wiki")
-
-st.info("I am an AI Chatbot capable of answering questions related to 1. Day & Nite's general information, 2. Standard of Procedure, 3. Day & Nite policies, 4. SamPro WebHelp, 5. workorder status, 6. math calculation and 7. search web for additional info.")
-st.info("Help me improve! Email lguo@wearetheone.com to suggestions and ideas.")
+st.image(Image.open(Path("./pics/dnas-logo.png")))
+st.title("Day & Nite Wiki")
+st.info("Help me improve! Email Leo lguo@wearetheone.com for suggestions and ideas.")
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = [
         {
             "role": "assistant", 
             "content": "How can I help you today?"
+        },
+        {
+            "role": "assistant",
+            "content": "🧠 I can answer questions related to 1. Day & Nite's general information, 2. Standard of Procedure, 3. Day & Nite policies, 4. SamPro WebHelp, 5. workorder status, 6. math calculation and 7. search web"
         }
     ]
 
 for msg in st.session_state.messages:
     if msg["role"] == "assistant":
-        st.chat_message("assistant", avatar="🌗").write(msg["content"])
+        # st.chat_message("assistant", avatar="🌗").write(msg["content"])
+        st.chat_message("assistant", avatar=Image.open(Path("./pics/bot.png"))).write(msg["content"])
+
     else:
-        st.chat_message("user", avatar="🤔").write(msg["content"])
+        st.chat_message("user", avatar="😎").write(msg["content"])
 
 if prompt := st.chat_input(placeholder="Start typing..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user", avatar="🤔").write(prompt)
-    with st.chat_message("assistant", avatar="🌗"):
+    st.chat_message("user", avatar="😎").write(prompt)
+    # with st.chat_message("assistant", avatar="🌗"):
+    with st.chat_message("assistant", avatar=Image.open(Path("./pics/bot.png"))):
         st.write("🧠 Thinking...")
         st_callback_handler = StreamlitCallbackHandler(st.container())
         # HumanApprovalCallbackHandler()

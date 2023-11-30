@@ -120,7 +120,7 @@ policy_qa_lc_tool = policy_qa_tool.to_langchain_tool()
 # DuckDuckGoSearch
 ddg_search = DuckDuckGoSearchRun()
 ddg_search_lc_tool = Tool(
-    name="Duck Duck Go Search",
+    name="DuckDuckGoSearch",
     func=ddg_search.run,
     description="Useful for when you need to answer questions about the current events."
 )
