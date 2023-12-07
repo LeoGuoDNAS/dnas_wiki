@@ -8,11 +8,13 @@ from llama_index import ServiceContext, GPTVectorStoreIndex
 from dotenv import load_dotenv
 import openai
 from langchain.tools import DuckDuckGoSearchRun, Tool
+from langchain.utilities import SerpAPIWrapper
 from langchain.chains import LLMMathChain
 from langchain.llms import OpenAI
 import requests
 import json
 from schemas import statusTranslate, workorder_status_schema
+from duckduckgo_search import DDGS
 # from langchain.vectorstores import Pinecone
 
 # Load environment variables from .env file
@@ -21,6 +23,7 @@ openai.api_key = os.getenv('api_key')
 os.environ['OPENAI_API_KEY'] = os.getenv('api_key')
 os.environ['PINECONE_API_KEY'] = os.getenv('pinecone_api_key')
 os.environ['PINECONE_ENVIRONMENT'] = os.getenv('pinecone_env')
+os.environ["SERPAPI_API_KEY"] = os.getenv("serp_api_key")
 sampro_api_key = os.getenv('sampro_api_key')
 
 # Connect to Pinecone
@@ -118,10 +121,18 @@ policy_qa_tool = QueryEngineTool(
 policy_qa_lc_tool = policy_qa_tool.to_langchain_tool()
 
 # DuckDuckGoSearch
-ddg_search = DuckDuckGoSearchRun()
-ddg_search_lc_tool = Tool(
-    name="DuckDuckGoSearch",
-    func=ddg_search.run,
+# ddg_search = DuckDuckGoSearchRun()
+# ddg_search_lc_tool = Tool(
+#     name="DuckDuckGoSearch",
+#     func=ddg_search.run,
+#     description="Useful for when you need to answer questions about the current events."
+# )
+
+# SerpAPI Google Search
+serpApiSearch = SerpAPIWrapper()
+google_search_lc_tool = Tool(
+    name="GoogleSearch",
+    func=serpApiSearch.run,
     description="Useful for when you need to answer questions about the current events."
 )
 
