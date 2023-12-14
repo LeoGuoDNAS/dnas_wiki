@@ -7,8 +7,8 @@ from llama_index.tools import FunctionTool, QueryEngineTool, ToolMetadata
 from llama_index import ServiceContext, GPTVectorStoreIndex
 from dotenv import load_dotenv
 import openai
-from langchain.tools import DuckDuckGoSearchRun, Tool
-from langchain.utilities import SerpAPIWrapper
+from langchain.tools import DuckDuckGoSearchRun, Tool, HumanInputRun
+from langchain.utilities import SerpAPIWrapper, WikipediaAPIWrapper
 from langchain.chains import LLMMathChain
 from langchain.llms import OpenAI
 import requests
@@ -75,7 +75,7 @@ dnas_qa_tool = QueryEngineTool(
     query_engine=dnas_qa_query_engine,
     metadata=ToolMetadata(
         name="dnas_factual_qa_tool",
-        description="Information about Day & Nite All Service. Contains information such as contacts, service, history, mission, vision, and DNAS Connect."
+        description="Information about Day & Nite All Service. Contains information such as contacts, service, history, mission, vision, and DNAS Connect. If users ask for specific contact or person's information, this tool should be used first to check."
     )
 )
 dnas_qa_lc_tool = dnas_qa_tool.to_langchain_tool()
@@ -121,20 +121,28 @@ policy_qa_tool = QueryEngineTool(
 policy_qa_lc_tool = policy_qa_tool.to_langchain_tool()
 
 # DuckDuckGoSearch
-# ddg_search = DuckDuckGoSearchRun()
-# ddg_search_lc_tool = Tool(
-#     name="DuckDuckGoSearch",
-#     func=ddg_search.run,
-#     description="Useful for when you need to answer questions about the current events."
-# )
+ddg_search = DuckDuckGoSearchRun()
+ddg_search_lc_tool = Tool(
+    name="DuckDuckGoSearch",
+    func=ddg_search.run,
+    description="Useful for when you need to do a search on the internet to find information that another tool can't find. be specific with your input."
+)
+
+# Wikipedia
+wikipedia = WikipediaAPIWrapper()
+wikipedia_lc_tool = Tool(
+    name="WikipediaSearch",
+    func=wikipedia.run,
+    description="Useful for when you need to look up a topic, event or person on wikipedia"
+)
 
 # SerpAPI Google Search
-serpApiSearch = SerpAPIWrapper()
-google_search_lc_tool = Tool(
-    name="GoogleSearch",
-    func=serpApiSearch.run,
-    description="Useful for when you need to answer questions about the current events."
-)
+# serpApiSearch = SerpAPIWrapper()
+# google_search_lc_tool = Tool(
+#     name="GoogleSearch",
+#     func=serpApiSearch.run,
+#     description="Use this tool when no other tools can give you an answer. Useful for when you need to answer questions about the current events."
+# )
 
 # Calculator
 math = LLMMathChain.from_llm(OpenAI())
@@ -145,12 +153,12 @@ math_lc_tool = Tool(
 )
 
 # Human in the loop
-# human_in_the_loop = HumanInputRun()
-# human_input_lc_tool = Tool(
-#     name="Human in the loop",
-#     func=human_in_the_loop.run,
-#     description="Useful for when you need more information or clarification."
-# )
+human_in_the_loop = HumanInputRun()
+human_input_lc_tool = Tool(
+    name="Human in the loop",
+    func=human_in_the_loop.run,
+    description="Useful for when you need more information or clarification."
+)
 
 # Default behavior
 def default_response(input_text: Optional[str]):
