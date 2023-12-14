@@ -24,7 +24,7 @@ access_code = os.getenv('bot_access_code')
 
 st.set_page_config(page_title="ChatDNAS", page_icon="🌗")
 st.image(Image.open(Path("./pics/dnas-logo.png")))
-st.title("ChatDNAS")
+st.title("🌗 ChatDNAS")
 
 # Define session state messages
 if "messages" not in st.session_state:
@@ -33,10 +33,10 @@ if "messages" not in st.session_state:
             "role": "assistant", 
             "content": "How can I help you today?"
         },
-        {
-            "role": "assistant",
-            "content": "🧠 I can answer questions related to 1. Day & Nite's general information, 2. Standard of Procedure, 3. Day & Nite policies, 4. SamPro WebHelp, 5. workorder status, 6. math calculation and 7. search web"
-        }
+        # {
+        #     "role": "assistant",
+        #     "content": "🧠 I can answer questions related to 1. Day & Nite's general information, 2. Standard of Procedure, 3. Day & Nite policies, 4. SamPro WebHelp, 5. workorder status, 6. math calculation and 7. search web"
+        # }
     ]
 
 # Define login
@@ -47,14 +47,30 @@ def get_access_code():
     else:
         st.session_state['current_access_code'] = st.session_state['access_code_text_input']
         st.warning("Incorrect, try again.")
-st.text_input(
-    label="Input your Access Code here", 
-    type="password", 
-    help="If you don't know the access code, contact lguo@wearetheone.com", 
-    placeholder="If you don't know, contact lguo@wearetheone.com",
-    key="access_code_text_input"
-)
-st.button("Submit Access Code", on_click=get_access_code)
+with st.expander("🔑 Start here. Login first.", expanded=False):
+    st.text_input(
+        label="Input Access Code", 
+        type="password", 
+        help="If you don't know the access code, contact lguo@wearetheone.com", 
+        placeholder="If you don't know the access code, contact lguo@wearetheone.com",
+        key="access_code_text_input"
+    )
+    st.button("Submit", on_click=get_access_code)
+
+with st.expander("💡 Learn more about ChatDNAS", expanded=False):
+    st.info("""
+        🌗 ChatDNAS is a conversational chatbot, designed to empower Day & Nite employees
+    """)
+    st.info("""
+        🧠 ChatDNAS can answer questions related to 
+        1. Day & Nite's general information, 
+        2. Standard of Procedures, 
+        3. Day & Nite policies, 
+        4. SamPro WebHelp, 
+        5. workorder status, 
+        6. math calculation and 
+        7. search web for additional information.
+    """)
 
 # Define LLM
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo", streaming=True)
