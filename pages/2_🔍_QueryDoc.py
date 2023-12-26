@@ -15,76 +15,76 @@ st.set_page_config(page_title="QueryDoc", page_icon="🔍", layout="centered", i
 openai.api_key = os.getenv('api_key')
 st.title("🔍 QueryDoc")
 
-with st.expander("📁 Start here. Upload a file to proceed", expanded=False):
-    st.info("Upload your documents and talk to them in natural language! File types supported: .pdf, .docx, .txt", icon="💡")
-    uploaded_file = st.file_uploader("Upload a file to start query", type=["pdf", "docx", "txt"])
-    index = None
-    data_directory = "./data/"
-    if uploaded_file is not None:
-        # create data directory
-        if not os.path.exists(data_directory):
-            os.makedirs(data_directory)
-        
-        # create directory to uploaded file
-        path = os.path.join(data_directory, uploaded_file.name)
-        
-        # write to designated directory
-        with open(path, "wb") as f:
-            f.write(uploaded_file.getvalue())
-        st.success("File uploaded successfully!")
+# with st.expander("📁 Start here. Upload a file to proceed", expanded=False):
+st.info("Upload your documents and talk to them in natural language! File types supported: .pdf, .docx, .txt", icon="💡")
+uploaded_file = st.file_uploader("Upload a file to start query", type=["pdf", "docx", "txt"])
+index = None
+data_directory = "./data/"
+if uploaded_file is not None:
+    # create data directory
+    if not os.path.exists(data_directory):
+        os.makedirs(data_directory)
+    
+    # create directory to uploaded file
+    path = os.path.join(data_directory, uploaded_file.name)
+    
+    # write to designated directory
+    with open(path, "wb") as f:
+        f.write(uploaded_file.getvalue())
+    st.success("File uploaded successfully!")
 
-        # load file into vectorstore
-        with st.spinner(text="Loading and indexing the doc – hang tight!"):
-            reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
-            docs = reader.load_data()
-            service_context = ServiceContext.from_defaults(
-                llm=OpenAI(
-                    model="gpt-3.5-turbo", 
-                    temperature=0, 
-                    system_prompt="You are an expert on the uploaded document and your job is to answer questions about the docs. Assume that all questions are related to the docs. Keep your answers technical and based on facts – do not hallucinate features."
-                )
+    # load file into vectorstore
+    with st.spinner(text="Loading and indexing the doc – hang tight!"):
+        reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
+        docs = reader.load_data()
+        service_context = ServiceContext.from_defaults(
+            llm=OpenAI(
+                model="gpt-3.5-turbo", 
+                temperature=0, 
+                system_prompt="You are an expert on the uploaded document and your job is to answer questions about the docs. Assume that all questions are related to the docs. Keep your answers technical and based on facts – do not hallucinate features."
             )
-            index = VectorStoreIndex.from_documents(docs, service_context=service_context)
+        )
+        index = VectorStoreIndex.from_documents(docs, service_context=service_context)
 
-            if index is None:
-                st.warning("Please upload a file to chat with.")
-            else:
-                if "querydoc_messages" not in st.session_state.keys(): # Initialize the chat messages history
-                    st.session_state.querydoc_messages = [
-                        {"role": "assistant", "content": "Ask me a question about the document!"}
-                    ]
+        if index is None:
+            st.warning("Please upload a file to chat with.")
+        else:
+            if "querydoc_messages" not in st.session_state.keys(): # Initialize the chat messages history
+                st.session_state.querydoc_messages = [
+                    {"role": "assistant", "content": "Ask me a question about the document!"}
+                ]
 
-                if "query_engine" not in st.session_state.keys(): # Initialize the chat engine
-                        st.session_state.query_engine = index.as_query_engine()
+            if "query_engine" not in st.session_state.keys(): # Initialize the chat engine
+                    st.session_state.query_engine = index.as_query_engine()
 
-                if prompt := st.chat_input("Your question"): # Prompt for user input and save to chat history
-                    st.session_state.querydoc_messages.append({"role": "user", "content": prompt})
+            if prompt := st.chat_input("Your question"): # Prompt for user input and save to chat history
+                st.session_state.querydoc_messages.append({"role": "user", "content": prompt})
 
-                for message in st.session_state.querydoc_messages: # Display the prior chat messages
-                    # with st.chat_message(message["role"], avatar=Image.open(Path("./pics/bot.png"))):
-                    #     st.write(message["content"])
-                    if message["role"] == "assistant":
-                        with st.chat_message("assistant", avatar=Image.open(Path("./pics/bot.png"))):
-                            st.write(message["content"])
-                    else:
-                        with st.chat_message("user", avatar="😎"):
-                            st.write(message["content"])
+            for message in st.session_state.querydoc_messages: # Display the prior chat messages
+                # with st.chat_message(message["role"], avatar=Image.open(Path("./pics/bot.png"))):
+                #     st.write(message["content"])
+                if message["role"] == "assistant":
+                    with st.chat_message("assistant", avatar=Image.open(Path("./pics/bot.png"))):
+                        st.write(message["content"])
+                else:
+                    with st.chat_message("user", avatar="😎"):
+                        st.write(message["content"])
 
-                # If last message is not from assistant, generate a new response
-                if "querydoc_messages" in st.session_state.keys():
-                    if st.session_state.querydoc_messages[-1]["role"] != "assistant":
-                        with st.chat_message("assistant"):
-                            with st.spinner("Thinking..."):
-                                response = st.session_state.query_engine.query(prompt)
-                                st.write(response.response)
-                                message = {"role": "assistant", "content": response.response}
-                                st.session_state.querydoc_messages.append(message) # Add response to message history
-    else:
-        if os.path.exists(data_directory):
-            shutil.rmtree(data_directory)
-            st.session_state.querydoc_messages = [{"role": "assistant", "content": "Ask me a question about the document!"}]
-            st.warning("No data is available. Upload a file to proceed. ☝️")
-            st.session_state.clear()
+            # If last message is not from assistant, generate a new response
+            if "querydoc_messages" in st.session_state.keys():
+                if st.session_state.querydoc_messages[-1]["role"] != "assistant":
+                    with st.chat_message("assistant"):
+                        with st.spinner("Thinking..."):
+                            response = st.session_state.query_engine.query(prompt)
+                            st.write(response.response)
+                            message = {"role": "assistant", "content": response.response}
+                            st.session_state.querydoc_messages.append(message) # Add response to message history
+else:
+    if os.path.exists(data_directory):
+        shutil.rmtree(data_directory)
+        st.session_state.querydoc_messages = [{"role": "assistant", "content": "Ask me a question about the document!"}]
+        st.warning("No data is available. Upload a file to proceed. ☝️")
+        st.session_state.clear()
         
 
 
